@@ -3,6 +3,6 @@ from .models import Task
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'period', 'user')   # الأعمدة اللي هتظهر في لوحة الإدارة
-    search_fields = ('title', 'description')     # البحث داخل المهام
-    list_filter = ('period', 'user')             # فلترة حسب الفترة أو المستخدم
+    list_display = ('title', 'period', 'user')   # The columns that appear in the administration panel
+    search_fields = ('title', 'description')     #Searching inside the oryx
+    list_filter = ('period', 'user')             # Filters for period and user

@@ -5,27 +5,27 @@ from django.contrib.auth import login
 from .models import Task
 from .forms import TaskForm
 
-# عرض قائمة المهام
+# Display Task List
 @login_required
 def task_list(request):
     tasks = Task.objects.filter(user=request.user)
     return render(request, 'tasks/task_list.html', {'tasks': tasks})
 
-# إضافة مهمة جديدة
+# Adding a new important task
 @login_required
 def task_create(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
             task = form.save(commit=False)
-            task.user = request.user  # ربط المهمة بالمستخدم الحالي
+            task.user = request.user  # Linking the task to the current user
             task.save()
             return redirect('task_list')
     else:
         form = TaskForm()
     return render(request, 'tasks/task_form.html', {'form': form})
 
-# تعديل مهمة موجودة
+# Edit existing task
 @login_required
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk, user=request.user)
@@ -38,7 +38,7 @@ def task_update(request, pk):
         form = TaskForm(instance=task)
     return render(request, 'tasks/task_form.html', {'form': form})
 
-# حذف مهمة
+# Delete task
 @login_required
 def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk, user=request.user)
@@ -47,13 +47,13 @@ def task_delete(request, pk):
         return redirect('task_list')
     return render(request, 'tasks/task_confirm_delete.html', {'task': task})
 
-# تسجيل مستخدم جديد
+#Register a new user
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # تسجيل الدخول مباشرة بعد إنشاء الحساب
+            login(request, user)  # Log the user in after registration
             return redirect('task_list')
     else:
         form = UserCreationForm()
