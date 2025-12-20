@@ -1,21 +1,51 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Daily Task Manager</title>
+    <meta charset="UTF-8">
+    <title>My Tasks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Tasks</h1>
-    <a href="{% url 'task_add' %}">Add Task</a>
-    <ul>
-        {% for task in tasks %}
-            <li>
-                {{ task.title }} - {{ task.period }}
-                {% if task.is_completed %}(Completed){% endif %}
-                <a href="{% url 'task_edit' task.id %}">Edit</a>
-                <a href="{% url 'task_delete' task.id %}">Delete</a>
-                <a href="{% url 'task_complete' task.id %}">Complete</a>
-            </li>
-        {% endfor %}
-    </ul>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Tasks</h2>
+        <div>
+            <a href="{% url 'task_create' %}" class="btn btn-success">+ Add Task</a>
+            <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+
+    {% if tasks %}
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Period</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.period }}</td>
+                    <td>
+                        <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No tasks yet. Add your first task!</div>
+    {% endif %}
+</div>
+
 </body>
 </html>
+

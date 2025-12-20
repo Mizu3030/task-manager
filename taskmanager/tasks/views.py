@@ -1,36 +1,60 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from .models import Task
+from .forms import TaskForm
 
+# عرض قائمة المهام
+@login_required
 def task_list(request):
-    tasks = Task.objects.all().order_by('period')
+    tasks = Task.objects.filter(user=request.user)
     return render(request, 'tasks/task_list.html', {'tasks': tasks})
 
-def task_add(request):
+# إضافة مهمة جديدة
+@login_required
+def task_create(request):
     if request.method == 'POST':
-        title = request.POST['title']
-        description = request.POST.get('description', '')
-        period = request.POST['period']
-        Task.objects.create(title=title, description=description, period=period)
-        return redirect('task_list')
-    return render(request, 'tasks/task_form.html')
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user  # ربط المهمة بالمستخدم الحالي
+            task.save()
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'tasks/task_form.html', {'form': form})
 
-def task_edit(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
+# تعديل مهمة موجودة
+@login_required
+def task_update(request, pk):
+    task = get_object_or_404(Task, pk=pk, user=request.user)
     if request.method == 'POST':
-        task.title = request.POST['title']
-        task.description = request.POST.get('description', '')
-        task.period = request.POST['period']
-        task.save()
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskForm(instance=task)
+    return render(request, 'tasks/task_form.html', {'form': form})
+
+# حذف مهمة
+@login_required
+def task_delete(request, pk):
+    task = get_object_or_404(Task, pk=pk, user=request.user)
+    if request.method == 'POST':
+        task.delete()
         return redirect('task_list')
-    return render(request, 'tasks/task_form.html', {'task': task})
+    return render(request, 'tasks/task_confirm_delete.html', {'task': task})
 
-def task_delete(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    task.delete()
-    return redirect('task_list')
-
-def task_complete(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    task.is_completed = True
-    task.save()
-    return redirect('task_list')
+# تسجيل مستخدم جديد
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # تسجيل الدخول مباشرة بعد إنشاء الحساب
+            return redirect('task_list')
+    else:
+        form = UserCreationForm()
+    return render(request, 'tasks/register.html', {'form': form})

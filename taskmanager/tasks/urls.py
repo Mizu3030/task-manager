@@ -1,10 +1,18 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    # تسجيل الدخول والخروج
+    path('login/', auth_views.LoginView.as_view(template_name='tasks/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+    # تسجيل مستخدم جديد
+    path('register/', views.register, name='register'),
+
+    # المهام
     path('', views.task_list, name='task_list'),
-    path('add/', views.task_add, name='task_add'),
-    path('edit/<int:task_id>/', views.task_edit, name='task_edit'),
-    path('delete/<int:task_id>/', views.task_delete, name='task_delete'),
-    path('complete/<int:task_id>/', views.task_complete, name='task_complete'),
+    path('create/', views.task_create, name='task_create'),
+    path('update/<int:pk>/', views.task_update, name='task_update'),
+    path('delete/<int:pk>/', views.task_delete, name='task_delete'),
 ]
